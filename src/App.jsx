@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { Outlet, useLocation, useNavigate, Link } from 'react-router-dom';
+import { LuLayers } from 'react-icons/lu';
 import { DOMAINS, getDomainData } from './data/domainData.js';
+import { CartWishlistProvider, useCartWishlist } from './tamplate/common/useCartWishlist.jsx';
 
 // Common Components
 import HeaderTop from './tamplate/common/headerTop.jsx';
@@ -8,17 +10,13 @@ import Nav from './tamplate/common/nav.jsx';
 import Footer from './tamplate/common/footer.jsx';
 
 /**
- * Root App Layout for React Router
- * Features:
- * - Master Top Architecture Bar: Quickly toggle between Tech, Food, School, College, IT Firm, Hospital
- * - HeaderTop: JS live clock, phone, email, cart and wishlist counters
- * - Common Nav: Responsive navbar with section switcher and theme dropdown
- * - Outlet: Renders the active route
- * - Common Footer: Dynamic footer with newsletter and domain information
+ * Inner Application Layout
+ * Consumes CartWishlistContext and manages domain switching and theme.
  */
-export default function App() {
+function AppLayout() {
   const location = useLocation();
   const navigate = useNavigate();
+  const cartStore = useCartWishlist();
 
   // Detect active domain based on URL path or return null to retain current
   const detectDomainFromPath = (path) => {
@@ -47,47 +45,21 @@ export default function App() {
   };
 
   const [activeDomain, setActiveDomain] = useState(() => detectDomainFromPath(location.pathname) || 'tech');
-  const [theme, setTheme] = useState('dark');
-
-  // Persisted shopping cart state
-  const [cart, setCart] = useState(() => {
+  const [theme, setTheme] = useState(() => {
     try {
-      const saved = localStorage.getItem('app_cart');
-      return saved ? JSON.parse(saved) : [];
+      return localStorage.getItem('app_theme') || 'dark';
     } catch (e) {
-      return [];
+      return 'dark';
     }
   });
 
-  // Persisted wishlist state
-  const [wishlist, setWishlist] = useState(() => {
-    try {
-      const saved = localStorage.getItem('app_wishlist');
-      return saved ? JSON.parse(saved) : [];
-    } catch (e) {
-      return [];
-    }
-  });
-
-  // Toast notification state
-  const [toast, setToast] = useState(null);
-
-  const showToast = (message, type = 'info') => {
-    setToast({ message, type });
-    setTimeout(() => setToast(null), 2500);
-  };
-
+  // Sync data-theme with document.documentElement and localStorage
   useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
     try {
-      localStorage.setItem('app_cart', JSON.stringify(cart));
+      localStorage.setItem('app_theme', theme);
     } catch (e) {}
-  }, [cart]);
-
-  useEffect(() => {
-    try {
-      localStorage.setItem('app_wishlist', JSON.stringify(wishlist));
-    } catch (e) {}
-  }, [wishlist]);
+  }, [theme]);
 
   // Sync domain state if path changes to a specific domain
   useEffect(() => {
@@ -110,95 +82,71 @@ export default function App() {
     document.documentElement.setAttribute('data-theme', newTheme);
   };
 
-  const handleAddToCart = (item, quantity = 1) => {
-    if (!item) return;
-    setCart((prev) => {
-      const existingIndex = prev.findIndex((i) => i.id === item.id);
-      if (existingIndex > -1) {
-        const updated = [...prev];
-        updated[existingIndex] = {
-          ...updated[existingIndex],
-          quantity: (updated[existingIndex].quantity || 1) + quantity
-        };
-        return updated;
-      }
-      return [...prev, { ...item, quantity: Math.max(1, quantity) }];
-    });
-    showToast(`Added to cart: ${item.title}`, 'success');
-  };
-
   const handleBuyNow = (item) => {
-    if (!item) return;
-    setCart((prev) => {
-      const existingIndex = prev.findIndex((i) => i.id === item.id);
-      if (existingIndex > -1) {
-        const updated = [...prev];
-        updated[existingIndex] = {
-          ...updated[existingIndex],
-          quantity: (updated[existingIndex].quantity || 1) + 1
-        };
-        return updated;
-      }
-      return [...prev, { ...item, quantity: 1 }];
-    });
-    showToast(`Proceeding to checkout: ${item.title}`, 'success');
-    navigate('/cart');
+    cartStore.buyNow(item, (path) => navigate(path));
   };
 
-  const handleToggleWishlist = (item) => {
-    if (!item) return;
-    setWishlist((prev) => {
-      const exists = prev.some((w) => w.id === item.id);
-      if (exists) {
-        showToast(`Removed from wishlist: ${item.title}`, 'info');
-        return prev.filter((w) => w.id !== item.id);
-      } else {
-        showToast(`Saved to wishlist: ${item.title}`, 'success');
-        return [...prev, item];
-      }
-    });
+  // Outlet context package for all child routes and components
+  const contextValue = {
+    activeDomain,
+    currentData,
+    currentJob: currentData,
+    isEcom,
+    cart: cartStore.cart,
+    wishlist: cartStore.wishlist,
+    cartCount: cartStore.cartCount,
+    wishlistCount: cartStore.wishlistCount,
+    cartSubtotal: cartStore.cartSubtotal,
+    onAddToCart: cartStore.addToCart,
+    onBuyNow: handleBuyNow,
+    onToggleWishlist: cartStore.toggleWishlist,
+    onRemoveFromWishlist: cartStore.removeFromWishlist,
+    onUpdateCartQty: cartStore.updateCartQty,
+    onRemoveFromCart: cartStore.removeFromCart,
+    isInWishlist: cartStore.isInWishlist,
+    addToCart: cartStore.addToCart,
+    toggleWishlist: cartStore.toggleWishlist,
+    removeFromWishlist: cartStore.removeFromWishlist,
+    updateCartQty: cartStore.updateCartQty,
+    removeFromCart: cartStore.removeFromCart,
+    theme,
+    onThemeChange: handleThemeChange
   };
 
-  const handleRemoveFromWishlist = (id) => {
-    setWishlist((prev) => prev.filter((w) => w.id !== id));
-    showToast('Removed item from wishlist', 'info');
-  };
+  const isComponentHub = location.pathname === '/' || location.pathname.startsWith('/components') || location.pathname.startsWith('/daisyui');
 
-  const handleUpdateCartQty = (id, newQty) => {
-    if (newQty <= 0) {
-      setCart((prev) => prev.filter((i) => i.id !== id));
-    } else {
-      setCart((prev) =>
-        prev.map((i) => (i.id === id ? { ...i, quantity: newQty } : i))
-      );
-    }
-  };
-
-  const handleRemoveFromCart = (id) => {
-    setCart((prev) => prev.filter((i) => i.id !== id));
-    showToast('Removed item from cart', 'info');
-  };
-
-  const isInWishlist = (id) => wishlist.some((w) => w.id === id);
-
-  const totalCartCount = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
-  const totalWishlistCount = wishlist.length;
+  if (isComponentHub) {
+    return (
+      <div data-theme={theme} className="min-h-screen bg-base-100 text-base-content font-sans">
+        <Outlet context={contextValue} />
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-base-100 text-base-content flex flex-col font-sans transition-colors duration-300">
+    <div data-theme={theme} className="min-h-screen bg-base-100 text-base-content flex flex-col font-sans transition-colors duration-200">
       
-      {/* =========================================================================
-          MASTER QUICK CONTROLLER BAR
-          ========================================================================= */}
+      {/* MASTER QUICK CONTROLLER BAR */}
       <div className="bg-neutral text-neutral-content py-2 px-4 text-xs border-b border-neutral-focus">
         <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
           
-          <div className="flex items-center gap-2">
-            <span className={`badge ${isEcom ? 'badge-secondary' : 'badge-primary'} badge-xs font-bold`}>
-              {isEcom ? 'E-COMMERCE DOMAIN' : 'SERVICE DOMAIN'}
-            </span>
-            <span className="font-bold hidden sm:inline">Active Module:</span>
-            <span className="font-extrabold text-accent">{currentData.title}</span>
+          <div className="flex items-center gap-3">
+            <Link
+              to="/components"
+              className="btn btn-xs btn-primary font-bold gap-1.5 shadow-xs"
+              title="daisyUI Component & Website Hub"
+            >
+              <LuLayers className="text-xs" />
+              <span>daisyUI Components Hub</span>
+            </Link>
+
+            <div className="hidden sm:flex items-center gap-2">
+              <span className={`badge ${isEcom ? 'badge-secondary' : 'badge-primary'} badge-xs font-bold`}>
+                {isEcom ? 'E-COMMERCE DOMAIN' : 'SERVICE DOMAIN'}
+              </span>
+              <span className="font-bold hidden md:inline">Active:</span>
+              <span className="font-extrabold text-accent">{currentData.title}</span>
+            </div>
           </div>
 
           <div className="flex items-center gap-2 ml-auto">
@@ -238,56 +186,32 @@ export default function App() {
         </div>
       </div>
 
-      {/* =========================================================================
-          COMMON HEADER TOP
-          ========================================================================= */}
+      {/* COMMON HEADER TOP */}
       <HeaderTop
         phone={currentData.phone}
         email={currentData.email}
-        cartCount={totalCartCount}
-        wishlistCount={totalWishlistCount}
+        cartCount={cartStore.cartCount}
+        wishlistCount={cartStore.wishlistCount}
         domainTitle={currentData.brand}
         isEcom={isEcom}
       />
 
-      {/* =========================================================================
-          COMMON NAVBAR
-          ========================================================================= */}
+      {/* COMMON NAVBAR */}
       <Nav
         brand={currentData.brand}
         activeDomain={activeDomain}
         onDomainChange={handleDomainChange}
-        cartCount={totalCartCount}
+        cartCount={cartStore.cartCount}
         currentTheme={theme}
         onThemeChange={handleThemeChange}
       />
 
-      {/* =========================================================================
-          ACTIVE ROUTE OUTLET
-          ========================================================================= */}
+      {/* ACTIVE ROUTE OUTLET */}
       <main className="flex-1">
-        <Outlet context={{ 
-          activeDomain, 
-          currentData, 
-          currentJob: currentData, 
-          isEcom, 
-          cart, 
-          wishlist,
-          cartCount: totalCartCount,
-          wishlistCount: totalWishlistCount,
-          onAddToCart: handleAddToCart,
-          onBuyNow: handleBuyNow,
-          onToggleWishlist: handleToggleWishlist,
-          onRemoveFromWishlist: handleRemoveFromWishlist,
-          onUpdateCartQty: handleUpdateCartQty,
-          onRemoveFromCart: handleRemoveFromCart,
-          isInWishlist
-        }} />
+        <Outlet context={contextValue} />
       </main>
 
-      {/* =========================================================================
-          COMMON FOOTER
-          ========================================================================= */}
+      {/* COMMON FOOTER */}
       <Footer
         brand={currentData.brand}
         phone={currentData.phone}
@@ -296,17 +220,17 @@ export default function App() {
         domainType={currentData.type}
       />
 
-      {/* =========================================================================
-          TOAST FEEDBACK NOTIFICATIONS
-          ========================================================================= */}
-      {toast && (
-        <div className="toast toast-bottom toast-end z-50 p-4">
-          <div className={`alert ${toast.type === 'success' ? 'alert-success text-white' : 'alert-info text-white'} text-xs font-bold shadow-2xl rounded-2xl py-2.5 px-4 flex items-center gap-2`}>
-            <span>{toast.message}</span>
-          </div>
-        </div>
-      )}
-
     </div>
+  );
+}
+
+/**
+ * Root App Component wrapped with CartWishlistProvider
+ */
+export default function App() {
+  return (
+    <CartWishlistProvider>
+      <AppLayout />
+    </CartWishlistProvider>
   );
 }

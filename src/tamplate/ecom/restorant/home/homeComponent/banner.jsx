@@ -1,9 +1,26 @@
 import React, { useState, useEffect } from 'react';
-import { LuArrowRight, LuUtensils, LuCalendar } from 'react-icons/lu';
-import { DOMAINS } from '../../../../../data/domainData.js';
+import { LuArrowRight, LuChevronLeft, LuChevronRight, LuUtensils } from 'react-icons/lu';
+import foodData from '../../data.js';
 
-export default function FoodBanner({ onExploreMenu, onBookClick }) {
-  const slides = DOMAINS.food.slides || [];
+export default function FoodBanner({ slides: propSlides, onMenuClick, onReserveClick }) {
+  const defaultSlides = (foodData && foodData.slides && foodData.slides.length > 0)
+    ? foodData.slides
+    : [
+        {
+          title: "Artisan Woodfire Neapolitan Pizza & Handmade Pasta",
+          tagline: "Slow-fermented 72-hour sourdough, San Marzano D.O.P. tomatoes, and fresh buffalo mozzarella.",
+          img: "/images/banner-food-1.jpg",
+          tag: "AUTHENTIC ITALIAN"
+        },
+        {
+          title: "Prime Black Angus Ribeye & Truffle Butter Reduction",
+          tagline: "Charcoal grilled to perfection over aromatic hickory wood embers with roasted farm greens.",
+          img: "/images/banner-food-2.jpg",
+          tag: "CHEF SPECIALTY"
+        }
+      ];
+
+  const slides = (propSlides && propSlides.length > 0) ? propSlides : defaultSlides;
   const [current, setCurrent] = useState(0);
 
   useEffect(() => {
@@ -32,7 +49,7 @@ export default function FoodBanner({ onExploreMenu, onBookClick }) {
       <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-8 w-full">
         <div className="max-w-xl space-y-4">
           <span className="badge badge-primary font-bold text-xs gap-1 shadow-xs">
-            <LuUtensils /> {active.tag || 'CHEF SPECIALTY'}
+            <LuUtensils /> {active.tag || 'MICHELIN RECOGNIZED'}
           </span>
           <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black text-base-content leading-tight">
             {active.title}
@@ -40,18 +57,24 @@ export default function FoodBanner({ onExploreMenu, onBookClick }) {
           <p className="text-xs sm:text-sm text-base-content/80 leading-relaxed font-normal">
             {active.tagline}
           </p>
-          <div className="pt-2 flex flex-wrap items-center gap-3">
-            <button onClick={onExploreMenu} className="btn btn-primary btn-sm font-bold shadow-xs gap-2">
-              <span>Explore Menu</span>
+          <div className="pt-2 flex items-center gap-3">
+            <button onClick={onMenuClick} className="btn btn-primary btn-sm font-bold shadow-xs gap-2">
+              <span>View Full Menu</span>
               <LuArrowRight />
             </button>
-            <button onClick={onBookClick} className="btn btn-outline btn-sm font-semibold gap-1.5">
-              <LuCalendar />
+            <button onClick={onReserveClick} className="btn btn-outline btn-sm font-semibold">
               <span>Reserve Table</span>
             </button>
           </div>
         </div>
       </div>
+
+      <button onClick={() => setCurrent((c) => (c - 1 + slides.length) % slides.length)} className="absolute left-4 top-1/2 -translate-y-1/2 z-30 btn btn-circle btn-sm btn-ghost bg-base-100/50" aria-label="Previous slide">
+        <LuChevronLeft className="text-lg" />
+      </button>
+      <button onClick={() => setCurrent((c) => (c + 1) % slides.length)} className="absolute right-4 top-1/2 -translate-y-1/2 z-30 btn btn-circle btn-sm btn-ghost bg-base-100/50" aria-label="Next slide">
+        <LuChevronRight className="text-lg" />
+      </button>
     </div>
   );
 }

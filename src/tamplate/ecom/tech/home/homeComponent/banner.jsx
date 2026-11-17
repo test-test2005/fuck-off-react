@@ -1,9 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import { LuArrowRight, LuChevronLeft, LuChevronRight, LuSparkles } from 'react-icons/lu';
-import { DOMAINS } from '../../../../../data/domainData.js';
+import techData from '../../data.js';
 
-export default function TechBanner({ onShopClick }) {
-  const slides = DOMAINS.tech.slides || [];
+export default function TechBanner({ slides: propSlides, onShopClick }) {
+  const defaultSlides = (techData && techData.slides && techData.slides.length > 0)
+    ? techData.slides
+    : [
+        {
+          title: "TitanBook Pro M4 Max Studio Edition",
+          tagline: "Unleash extreme computational power with 128GB unified RAM and liquid-cooled neural engine.",
+          img: "/images/banner-1.jpg",
+          tag: "FLAGSHIP WORKSTATION"
+        },
+        {
+          title: "Quantum Oled Ultra-Wide Gaming Monitor",
+          tagline: "Pure black contrast, 360Hz refresh rate, and 0.03ms instant response time.",
+          img: "/images/banner-2.jpg",
+          tag: "NEXT-GEN DISPLAY"
+        }
+      ];
+
+  const slides = (propSlides && propSlides.length > 0) ? propSlides : defaultSlides;
   const [current, setCurrent] = useState(0);
 
   useEffect(() => {

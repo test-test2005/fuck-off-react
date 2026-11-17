@@ -1,11 +1,23 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { DOMAINS } from '../../../../../data/domainData.js';
-import ITFirmServiceCard from "../../otherPage/serviceCard.jsx";
+import itfirmData from '../../data.js';
+import ITFirmServiceCard from '../../components/serviceCard.jsx';
 
-export default function ITFirmFeaturedServices() {
-  const items = DOMAINS.itfirm.items || [];
+export default function ITFirmFeaturedServices({ items, onSelectService }) {
+  const displayItems = items && items.length > 0 ? items : (itfirmData.items || []);
   const navigate = useNavigate();
+
+  const handleSelect = (s) => {
+    if (onSelectService) {
+      onSelectService(s);
+    } else {
+      try {
+        navigate(`/detail/${s.id}`);
+      } catch (e) {
+        console.log('Selected service:', s);
+      }
+    }
+  };
 
   return (
     <section className="space-y-8">
@@ -14,11 +26,11 @@ export default function ITFirmFeaturedServices() {
         <p className="text-xs text-base-content/70 mt-1">High-availability engineering tailored for your tech stack.</p>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {items.map((svc) => (
+        {displayItems.map((svc) => (
           <ITFirmServiceCard
             key={svc.id}
             service={svc}
-            onSelect={(s) => navigate(`/detail/${s.id}`)}
+            onSelect={handleSelect}
           />
         ))}
       </div>

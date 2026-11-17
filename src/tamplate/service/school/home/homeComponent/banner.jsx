@@ -1,14 +1,31 @@
 import React, { useState, useEffect } from 'react';
 import { LuGraduationCap, LuAward, LuBookOpen, LuArrowRight, LuChevronLeft, LuChevronRight } from 'react-icons/lu';
+import schoolData from '../../data.js';
 
-export default function SchoolBanner({ slides = [], onApplyClick, onExploreClick }) {
+export default function SchoolBanner({ slides: propSlides, onApplyClick, onExploreClick }) {
+  const defaultSlides = (schoolData && schoolData.slides && schoolData.slides.length > 0)
+    ? schoolData.slides
+    : [
+        {
+          title: "World-Class Cambridge Curriculum & STEM Labs",
+          tagline: "Empowering children with inquiry-based learning, robotics, and bilingual communication.",
+          img: "/images/banner-edu-1.jpg",
+          tag: "ACCREDITED 2026"
+        },
+        {
+          title: "Inspiring Arts, Sports & Athletic Facilities",
+          tagline: "Olympic standard indoor swimming pool, FIFA astro turf, and dedicated performing arts auditorium.",
+          img: "/images/banner-edu-2.jpg",
+          tag: "HOLISTIC GROWTH"
+        }
+      ];
+
+  const slides = (propSlides && propSlides.length > 0) ? propSlides : defaultSlides;
   const [current, setCurrent] = useState(0);
 
   useEffect(() => {
     if (!slides.length) return;
-    const timer = setInterval(() => {
-      setCurrent((c) => (c + 1) % slides.length);
-    }, 5000);
+    const timer = setInterval(() => setCurrent((c) => (c + 1) % slides.length), 5000);
     return () => clearInterval(timer);
   }, [slides.length]);
 
@@ -48,58 +65,35 @@ export default function SchoolBanner({ slides = [], onApplyClick, onExploreClick
             {active.title}
           </h1>
 
-          <p className="text-sm sm:text-base text-base-content/80 leading-relaxed font-normal">
+          <p className="text-xs sm:text-sm text-base-content/80 leading-relaxed font-normal">
             {active.tagline}
           </p>
 
-          <div className="pt-2 flex flex-wrap items-center gap-3">
+          <div className="pt-2 flex items-center gap-3 flex-wrap">
             <button
               onClick={onApplyClick}
-              className="btn btn-primary font-bold shadow-sm gap-2"
+              className="btn btn-primary btn-sm font-bold shadow-xs gap-1.5"
             >
-              <span>Enroll for Academic Year</span>
-              <LuArrowRight className="text-sm" />
+              <span>Apply for Admission</span>
+              <LuArrowRight className="text-xs" />
             </button>
             <button
               onClick={onExploreClick}
-              className="btn btn-outline font-semibold gap-1.5"
+              className="btn btn-outline btn-sm font-semibold gap-1.5"
             >
-              <LuBookOpen className="text-sm" />
+              <LuBookOpen className="text-xs" />
               <span>Explore Curriculum</span>
             </button>
           </div>
         </div>
       </div>
 
-      {/* Slide Navigation Controls */}
-      <button
-        onClick={prev}
-        className="absolute left-4 top-1/2 -translate-y-1/2 z-30 btn btn-circle btn-sm btn-ghost bg-base-100/60 hover:bg-base-100"
-        aria-label="Previous slide"
-      >
+      <button onClick={prev} className="absolute left-4 top-1/2 -translate-y-1/2 z-30 btn btn-circle btn-sm btn-ghost bg-base-100/50" aria-label="Previous slide">
         <LuChevronLeft className="text-lg" />
       </button>
-      <button
-        onClick={next}
-        className="absolute right-4 top-1/2 -translate-y-1/2 z-30 btn btn-circle btn-sm btn-ghost bg-base-100/60 hover:bg-base-100"
-        aria-label="Next slide"
-      >
+      <button onClick={next} className="absolute right-4 top-1/2 -translate-y-1/2 z-30 btn btn-circle btn-sm btn-ghost bg-base-100/50" aria-label="Next slide">
         <LuChevronRight className="text-lg" />
       </button>
-
-      {/* Dots Indicator */}
-      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2">
-        {slides.map((_, idx) => (
-          <button
-            key={idx}
-            onClick={() => setCurrent(idx)}
-            className={`h-2 rounded-full transition-all ${
-              idx === current ? 'w-8 bg-primary' : 'w-2 bg-base-content/30'
-            }`}
-            aria-label={`Go to slide ${idx + 1}`}
-          />
-        ))}
-      </div>
     </div>
   );
 }

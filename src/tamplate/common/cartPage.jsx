@@ -4,17 +4,26 @@ import { DOMAINS } from '../../data/domainData.js';
 import Breadcrumbs from './breadcrumbs.jsx';
 import PopupModal from './popupModal.jsx';
 import { LuShoppingCart, LuArrowRight, LuShieldCheck, LuTruck, LuTrash2, LuShoppingBag } from 'react-icons/lu';
+import { useCartWishlist } from './useCartWishlist.jsx';
 
 /**
  * Dedicated Shopping Cart & Checkout Page
  * Linked from the Shopping Cart indicator in the navbar and HeaderTop
+ * Supports props, useOutletContext, or direct useCartWishlist() automatically.
  */
-export default function CartPage() {
-  const outlet = useOutletContext() || {};
-  const data = outlet.currentData || outlet.currentJob || DOMAINS.tech;
-  const cart = outlet.cart || [];
-  const onUpdateCartQty = outlet.onUpdateCartQty;
-  const onRemoveFromCart = outlet.onRemoveFromCart;
+export default function CartPage(props) {
+  let outlet = {};
+  try {
+    outlet = useOutletContext() || {};
+  } catch (e) {
+    outlet = {};
+  }
+
+  const hookStore = useCartWishlist();
+  const data = props?.currentData || outlet.currentData || outlet.currentJob || DOMAINS.tech;
+  const cart = props?.cart || outlet.cart || hookStore.cart || [];
+  const onUpdateCartQty = props?.onUpdateCartQty || outlet.onUpdateCartQty || hookStore.updateCartQty;
+  const onRemoveFromCart = props?.onRemoveFromCart || outlet.onRemoveFromCart || hookStore.removeFromCart;
 
   const [modalDetails, setModalDetails] = useState(null);
 

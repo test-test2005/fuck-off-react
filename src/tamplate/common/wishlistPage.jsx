@@ -3,18 +3,27 @@ import { useOutletContext, Link } from 'react-router-dom';
 import Breadcrumbs from './breadcrumbs.jsx';
 import PopupModal from './popupModal.jsx';
 import { LuHeart, LuShoppingCart, LuTrash2, LuArrowRight, LuShoppingBag, LuZap } from 'react-icons/lu';
+import { useCartWishlist } from './useCartWishlist.jsx';
 
 /**
  * Dedicated Wishlist Page
  * Linked from the Wishlist indicator in HeaderTop & Nav
  * Shows all user-saved wishlist items with Add to Cart and Buy Now actions
+ * Supports props, useOutletContext, or direct useCartWishlist() automatically.
  */
-export default function WishlistPage() {
-  const outlet = useOutletContext() || {};
-  const wishlist = outlet.wishlist || [];
-  const onRemoveFromWishlist = outlet.onRemoveFromWishlist;
-  const onAddToCart = outlet.onAddToCart;
-  const onBuyNow = outlet.onBuyNow;
+export default function WishlistPage(props) {
+  let outlet = {};
+  try {
+    outlet = useOutletContext() || {};
+  } catch (e) {
+    outlet = {};
+  }
+
+  const hookStore = useCartWishlist();
+  const wishlist = props?.wishlist || outlet.wishlist || hookStore.wishlist || [];
+  const onRemoveFromWishlist = props?.onRemoveFromWishlist || outlet.onRemoveFromWishlist || hookStore.removeFromWishlist;
+  const onAddToCart = props?.onAddToCart || outlet.onAddToCart || hookStore.addToCart;
+  const onBuyNow = props?.onBuyNow || outlet.onBuyNow || hookStore.buyNow;
 
   const [modalDetails, setModalDetails] = useState(null);
 
