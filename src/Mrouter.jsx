@@ -4,41 +4,41 @@ import App from './App.jsx';
 
 // Pages: E-Commerce Tech
 import TechHomePage from './tamplate/eCom/tech/home/homepage.jsx';
-import TechProductsPage from './tamplate/eCom/tech/pages/productsPage.jsx';
-import TechDetailPage from './tamplate/eCom/tech/pages/detailPage.jsx';
+import TechProductsPage from './tamplate/eCom/tech/otherPage/productsPage.jsx';
+import TechDetailPage from './tamplate/eCom/tech/otherPage/detailPage.jsx';
 
 // Pages: E-Commerce Food
 import FoodHomePage from './tamplate/eCom/food/home/homepage.jsx';
-import FoodsPage from './tamplate/eCom/food/pages/foodsPage.jsx';
-import FoodDetailPage from './tamplate/eCom/food/pages/detailPage.jsx';
+import FoodsPage from './tamplate/eCom/food/otherPage/foodsPage.jsx';
+import FoodDetailPage from './tamplate/eCom/food/otherPage/detailPage.jsx';
 
 // Pages: E-Commerce Fashion
 import FashionHomePage from './tamplate/eCom/fashion/home/homepage.jsx';
-import FashionProductsPage from './tamplate/eCom/fashion/pages/productsPage.jsx';
-import FashionDetailPage from './tamplate/eCom/fashion/pages/detailPage.jsx';
+import FashionProductsPage from './tamplate/eCom/fashion/otherPage/productsPage.jsx';
+import FashionDetailPage from './tamplate/eCom/fashion/otherPage/detailPage.jsx';
 
 // Pages: Service School
 import SchoolHomePage from './tamplate/service/school/home/homepage.jsx';
-import SchoolCoursesPage from './tamplate/service/school/pages/coursesPage.jsx';
-import SchoolAdmissionPage from './tamplate/service/school/pages/admissionPage.jsx';
-import SchoolDetailPage from './tamplate/service/school/pages/detailPage.jsx';
+import SchoolCoursesPage from './tamplate/service/school/otherPage/coursesPage.jsx';
+import SchoolAdmissionPage from './tamplate/service/school/otherPage/admissionPage.jsx';
+import SchoolDetailPage from './tamplate/service/school/otherPage/detailPage.jsx';
 
 // Pages: Service College (Collage)
 import CollegeHomePage from './tamplate/service/college/home/homepage.jsx';
-import CollegeDepartmentsPage from './tamplate/service/college/pages/departmentsPage.jsx';
-import CollegeDetailPage from './tamplate/service/college/pages/detailPage.jsx';
+import CollegeDepartmentsPage from './tamplate/service/college/otherPage/departmentsPage.jsx';
+import CollegeDetailPage from './tamplate/service/college/otherPage/detailPage.jsx';
 
 // Pages: Service IT Firm
 import ItFirmHomePage from './tamplate/service/itfirm/home/homepage.jsx';
-import ItFirmServicesPage from './tamplate/service/itfirm/pages/servicesPage.jsx';
-import ItFirmQuotePage from './tamplate/service/itfirm/pages/quotePage.jsx';
-import ItFirmDetailPage from './tamplate/service/itfirm/pages/detailPage.jsx';
+import ItFirmServicesPage from './tamplate/service/itfirm/otherPage/servicesPage.jsx';
+import ItFirmQuotePage from './tamplate/service/itfirm/otherPage/quotePage.jsx';
+import ItFirmDetailPage from './tamplate/service/itfirm/otherPage/detailPage.jsx';
 
 // Pages: Service Hospital
 import HospitalHomePage from './tamplate/service/hospital/home/homepage.jsx';
-import HospitalDoctorsPage from './tamplate/service/hospital/pages/doctorsPage.jsx';
-import HospitalAppointmentPage from './tamplate/service/hospital/pages/appointmentPage.jsx';
-import HospitalDetailPage from './tamplate/service/hospital/pages/detailPage.jsx';
+import HospitalDoctorsPage from './tamplate/service/hospital/otherPage/doctorsPage.jsx';
+import HospitalAppointmentPage from './tamplate/service/hospital/otherPage/appointmentPage.jsx';
+import HospitalDetailPage from './tamplate/service/hospital/otherPage/detailPage.jsx';
 
 // Ancillary & Utility Pages
 import CartPage from './tamplate/common/cartPage.jsx';
