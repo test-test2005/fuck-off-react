@@ -13,20 +13,20 @@
         // Strip /404 or /404.html if present
         path = path.replace(/\/404(\.html)?$/, '');
 
-        var segments = path.split('/').filter(Boolean);
-        var repoName = 'fuck-off-react';
-
+        var isCustomDomain = !window.location.hostname.endsWith('github.io');
         var target;
-        if (segments.length > 0 && segments[0] === repoName) {
-          var route = '/' + segments.slice(1).join('/');
-          target = '/' + repoName + '/#' + (route === '/' ? '' : route);
-        } else if (segments.length > 0) {
-          // If deployed under another repository name
-          var dynamicRepo = segments[0];
-          var dynamicRoute = '/' + segments.slice(1).join('/');
-          target = '/' + dynamicRepo + '/#' + (dynamicRoute === '/' ? '' : dynamicRoute);
-        } else {
+
+        if (isCustomDomain) {
           target = '/#' + (path === '/' ? '' : path);
+        } else {
+          var segments = path.split('/').filter(Boolean);
+          var repoName = 'fuck-off-react';
+          if (segments.length > 0 && segments[0] === repoName) {
+            var route = '/' + segments.slice(1).join('/');
+            target = '/' + repoName + '/#' + (route === '/' ? '' : route);
+          } else {
+            target = '/#' + (path === '/' ? '' : path);
+          }
         }
 
         window.location.replace(target + search + hash);
